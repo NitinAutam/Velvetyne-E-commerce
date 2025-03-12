@@ -10,7 +10,7 @@ import Cart from './pages/Cart';
 import Login from './pages/Login';
 import PlaceOrder from './pages/PlaceOrder';
 import Order from './pages/Order';
-import Search from './components/Search';
+import SearchPage from './pages/SearchPage';
 
 function App() {
   // Defining routes as an array of objects
@@ -24,7 +24,7 @@ function App() {
     { path: '/login', element: <Login /> },
     { path: '/place-order', element: <PlaceOrder /> },
     { path: '/orders', element: <Order /> },
-    { path: '/search', element: <Search/>},
+    { path: '/search', element: <SearchPage/>},
   ];
 
   return (
