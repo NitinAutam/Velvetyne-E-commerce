@@ -1,5 +1,6 @@
 import { createContext, useState } from "react";
 import { products } from "../assets/assets";
+import { use } from "react";
 
 // Creating the context in the form of ShopContext, which can be used later  
 export const ShopContext = createContext();
@@ -10,10 +11,11 @@ const ShopContextProvider = (props) => {
     const currency = '$';
     const deliveryFee = 10;
     const [search,setSearch]=useState('');
-    const [showSearch,setshowSearch]=useState(true);
+    const [showSearch,setshowSearch]=useState(false);
+    const [count,setCount]=useState(0);
 
     // value makes this object accessible via context
-    const value = { products, currency, deliveryFee,search,setSearch,showSearch,setshowSearch};
+    const value = { products, currency, deliveryFee,search,setSearch,showSearch,setshowSearch,count,setCount};
 
     return (
         // props.children ensures that all components wrapped inside ShopContextProvider 

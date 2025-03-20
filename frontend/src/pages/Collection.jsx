@@ -4,6 +4,7 @@ import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
 
 const Collection = () => {
+  const { search, setSearch, showSearch, setshowSearch } =useContext(ShopContext);
   const { products } = useContext(ShopContext);
   const [sortOption, setsortOption] = useState("");
   const [selectedCategories, setSelectedCategories] = useState({
@@ -46,20 +47,20 @@ const Collection = () => {
       const hasType = Object.entries(selectedTypes).some(
         ([key, value]) => value && item.subCategory === key
       );
-      // If both category & type are selected → match both
+      // If both category & type are selected  match both
       if (hasCategorySelected && hasTypeSelected) return hasCategory && hasType;
 
-      // If only category is selected → match category
+      // If only category is selected  match category
       if (hasCategorySelected) return hasCategory;
 
-      // If only type is selected → match type
+      // If only type is selected  match type
       if (hasTypeSelected) return hasType;
     });
   }, [products, selectedCategories, selectedTypes]);
 
   const sortedProducts = useMemo(() => {
     {
-      /*useMemo for sorting → Ensures sorting runs only when needed, improving performance */
+      /*useMemo for sorting Ensures sorting runs only when needed, improving performance */
     }
     if (sortOption === "lowhigh") {
       return [...filtering].sort((a, b) => a.price - b.price);
@@ -70,8 +71,15 @@ const Collection = () => {
     return filtering;
   }, [filtering, sortOption]);
 
+  const searchedProducts = useMemo(() => {
+    return sortedProducts.filter((item) => {
+      const searchMatch = item.name.toLowerCase().replace(/\s/g, "");
+      return searchMatch.includes(search.toLowerCase().replace(/\s/g, ""));
+    });
+  }, [sortedProducts, search]);
+
   return (
-    <div className="flex flex-col sm:flex-row  gap-1 sm:gap-10 pt-10 border-t">
+    <div className="flex flex-col sm:flex-row  gap-1 sm:gap-10 pt-10">
       {/*Filters*/}
       <div className="ml-24 mr-3 min-w-60 ">
         <p className="my-2 text-xl flex items-center cursor-pointer gap-2 ">
@@ -164,7 +172,7 @@ const Collection = () => {
         </div>
       </div>
 
-      <div className="text-2xl">
+      <div className="text-2xl w-full">
         <div className="flex justify-between mr-24 mb-4">
           <Title text1={"All"} text2={"Collections"} />
           <select
@@ -172,9 +180,9 @@ const Collection = () => {
             value={sortOption}
             onChange={(e) => setsortOption(e.target.value)}
           >
-            <option value="">Sort by:Relevance</option>
-            <option value="lowhigh">Sort by:Low to high</option>
-            <option value="highlow">Sort by:High to Low</option>
+            <option value="">Sort by: Relevance</option>
+            <option value="lowhigh">Sort by: Low to high</option>
+            <option value="highlow">Sort by: High to Low</option>
           </select>
         </div>
 
@@ -183,7 +191,7 @@ const Collection = () => {
            <Component /> → Render each item
             key={index} → Unique key (for React optimization)
             prop={item.value} → Passing data*/}
-          {sortedProducts.map((item, index) => (
+          {searchedProducts.map((item, index) => (
             <ProductItem
               key={index}
               name={item.name}
