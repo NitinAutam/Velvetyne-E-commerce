@@ -1,18 +1,38 @@
-import React, { useContext, useMemo, useState } from "react";
+import React, { useContext, useMemo, useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
 import { assets } from "../assets/assets";
 import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../redux/cartSlice";
 
 const Product = () => {
   const { productId } = useParams();
-  const { products,count,setCount } = useContext(ShopContext);
+  const { products, count, setCount } = useContext(ShopContext);
   const [activeTab, setActiveTab] = useState("description");
-  const [selected,setSelected]= useState(null);
+  const [selected, setSelected] = useState(null);
+  const cardRef = useRef();
+  const addToCartRef=useRef();
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      console.log("Selected state: ", selected); 
+      if (cardRef.current && !cardRef.current.contains(e.target) && addToCartRef.current && !addToCartRef.current.contains(e.target)) {
+        setSelected(false);
+      }
+    };
+    if (selected) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [selected]);
 
   // Finding the current product
+  const dispatch = useDispatch();
+
   const currentProduct = products.find((item) => item._id === productId);
 
   // Handle case when product is not found
@@ -24,7 +44,7 @@ const Product = () => {
     return products
       .filter(
         (item) =>
-          item._id != currentProduct._id &&
+          item._id !== currentProduct._id &&
           item.category === currentProduct.category &&
           item.subCategory === currentProduct.subCategory
       )
@@ -33,18 +53,11 @@ const Product = () => {
 
   const checkingSize = (index) => {
     const selectedSize = currentProduct.sizes[index];
-    console.log(selectedSize);
-    return selectedSize;
-};
+    console.log("Selected size: ", selectedSize);
+    setSelected(selectedSize); // Save the actual size
+  };
 
   
-  const Carting=(selectedSize)=>{
-    if (selectedSize && selected) {
-      setCount(count+1); // Code for sending data
-  } else {
-      alert('selected nhi hai');
-  }
-  };
 
   return (
     <div className="container mx-auto px-12 md:px-24 py-8 pt-12">
@@ -99,15 +112,14 @@ const Product = () => {
           {/* Select Size */}
           <div className="mt-6">
             <h2 className="text-lg font-medium">Select Size</h2>
-            <div className="flex space-x-3 mt-3">
+            <div ref={cardRef} className="flex space-x-3 mt-3">
               {currentProduct.sizes.map((size, index) => (
                 <button
                   key={index}
-                    onClick={()=>{
-                    checkingSize(index);
-                    setSelected(true);
-                  }}
-                  className="border px-6 py-2 font-medium transition hover:bg-gray-900 hover:text-white focus:ring-2 focus:ring-black"
+                  onClick={() => checkingSize(index)}
+                  className={`border px-6 py-2 font-medium transition hover:bg-gray-900 hover:text-white focus:ring-2 focus:ring-black ${
+                    selected === size ? "bg-black text-white" : ""
+                  }`} // Highlight selected size
                 >
                   {size}
                 </button>
@@ -115,10 +127,26 @@ const Product = () => {
             </div>
           </div>
           {/* ADD TO CART*/}
-          <button onClick={
-            ()=>{
-              Carting(checkingSize);
-              }} className="w-full sm:w-1/2 md:w-1/3 lg:w-1/3 bg-black text-white py-3 px-10 mt-6 text-base font-medium border-2 border-transparent hover:border-black hover:bg-white hover:text-black transition">
+          <button
+            ref={addToCartRef}
+            onClick={() => {
+              console.log("Selected size in Add to Cart: ", selected);
+              if (selected) {
+                dispatch(
+                  addToCart({
+                    _id: currentProduct._id,
+                    name: currentProduct.name,
+                    price: currentProduct.price,
+                    selectedSize: selected, // Passing the size
+                    image: currentProduct.image[0],
+                  })
+                );
+              } else {
+                alert("Please select a size before adding to cart");
+              }
+            }}
+            className="w-full sm:w-1/2 md:w-1/3 lg:w-1/3 bg-black text-white py-3 px-10 mt-6 text-base font-medium border-2 border-transparent hover:border-black hover:bg-white hover:text-black transition"
+          >
             ADD TO CART
           </button>
         </div>

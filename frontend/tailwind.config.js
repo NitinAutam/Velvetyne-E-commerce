@@ -8,6 +8,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Outfit'],
+        playfair: ['"Playfair Display"', 'serif'],
       },
     },
     },

@@ -1,11 +1,17 @@
-import React, {useContext} from "react";
+import React, { useContext } from "react";
 import { assets } from "../assets/assets";
 import { NavLink } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
+import { useSelector } from "react-redux";
 
 const Navbar = () => {
-    const { search, setSearch, setshowSearch,count,setCount } = useContext(ShopContext);
+  const cartItems = useSelector((state) => state.cart.cartItems);
+  const { search, setSearch, setshowSearch } = useContext(ShopContext);
+
+  const totQuantity = cartItems.reduce((sum, item) => {
+    return sum + item.quantity;
+  }, 0);
 
   return (
     <div className="flex items-center justify-between py-5 mx-24 font-medium border-b-2 ">
@@ -77,10 +83,15 @@ const Navbar = () => {
       <ul className="flex gap-5">
         <li>
           <NavLink to="/search">
-            <img src={assets.search_icon} alt="" className="w-5" onClick={() => {
-            console.log("Clicked search icon");
-            setshowSearch(true); // Hides search bar
-          }} />
+            <img
+              src={assets.search_icon}
+              alt=""
+              className="w-5"
+              onClick={() => {
+                console.log("Clicked search icon");
+                setshowSearch(true); // Hides search bar
+              }}
+            />
           </NavLink>
         </li>
         <li>
@@ -91,8 +102,10 @@ const Navbar = () => {
         <li>
           <NavLink to="/cart">
             <div className="relative">
-            <img src={assets.cart_icon} alt="" className="w-5 min-w-5" />
-            <p className="absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px]">{count}</p>
+              <img src={assets.cart_icon} alt="" className="w-5 min-w-5" />
+              <p className="absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white aspect-square rounded-full text-[8px]">
+                {totQuantity}
+              </p>
             </div>
           </NavLink>
         </li>

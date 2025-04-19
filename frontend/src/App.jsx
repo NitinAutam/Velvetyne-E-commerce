@@ -22,7 +22,7 @@ function App() {
     { path: '/product/:productId', element: <Product /> },
     { path: '/cart', element: <Cart /> },
     { path: '/login', element: <Login /> },
-    { path: '/place-order', element: <PlaceOrder /> },
+    { path: '/placeorder', element: <PlaceOrder /> },
     { path: '/orders', element: <Order /> },
     { path: '/search', element: <SearchPage/>},
   ];
