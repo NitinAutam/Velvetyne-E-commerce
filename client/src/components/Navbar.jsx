@@ -34,8 +34,7 @@ const Navbar = () => {
 
   const handleProfileClick = () => {
     if (!loggedIn) {
-      showInfo("Please login/signUp...");
-      navigate("/login");
+      setShowDropdown(true);
       return;
     }
     setShowDropdown((prev) => !prev);
@@ -135,16 +134,27 @@ const Navbar = () => {
                   </button>
                 </>
               ) : (
-                <button
-                  onClick={() => {
-                    setShowDropdown(false);
-                    navigate("/login");
-                    showInfo("Redirecting to login...");
-                  }}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100 transition"
-                >
-                  Login / Sign Up
-                </button>
+                <>
+                  <button
+                    onClick={() => {
+                      setShowDropdown(false);
+                      navigate("/login");
+                      showInfo("Redirecting to login...");
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 transition"
+                  >
+                    Login / Sign Up
+                  </button>
+
+                  <a
+                    href="https://github.com/NitinAutam/Velvetyne-E-commerce"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block px-4 py-2 hover:bg-gray-100 transition"
+                  >
+                    GitHub
+                  </a>
+                </>
               )}
             </div>
           )}
