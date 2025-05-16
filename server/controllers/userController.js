@@ -1,51 +1,75 @@
 const User = require("../models/userModel");
-const { createSecretToken } = require("../util/secretToken"); // Use destructuring to get the function
+const { createSecretToken } = require("../util/secretToken");
 const bcrypt = require("bcryptjs");
 
-module.exports.signUp = async (req, res, next) => {
+const signUp = async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    const existingId = await User.findOne({ email });
-    if (existingId) {
-      res.json({ message: "User already exists" });
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: "User already exists" });
     }
+
     const user = await User.create({ name, email, password });
     const token = createSecretToken(user._id);
-    // When a user logins , these cookie saved gets send automatically to cross check JWT everytime a user switch sessions
+
     res.cookie("Token", token, {
-      httpOnly: true, // Cannot be accessed via JS → prevents XSS
-      secure: true, //  Only sent over HTTPS
-      sameSite: "Lax", //  Prevents CSRF on normal navigation
+      httpOnly: true,
+      secure: false, // set true in production
+      sameSite: "Lax",
     });
-    res.status(201).json({ message: "User created", user });
-    next();
+    
+    return res.status(201).json({
+      success: true,
+      message: "User created",
+      user: { id: user._id, name: user.name, email: user.email }
+    });
   } catch (error) {
     console.error(error);
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
-module.exports.login = async (req, res, next) => {
+const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
+
     if (!email || !password) {
-      res.json({ message: "All fields are required" });
+      return res.status(400).json({ success: false, message: "All fields are required" });
     }
+ 
     const user = await User.findOne({ email });
     if (!user) {
-      res.json({ message: "Incorrect password or email" });
+      return res.status(401).json({ success: false, message: "Incorrect email or password" });
     }
+
     const auth = await bcrypt.compare(password, user.password);
     if (!auth) {
-      res.json({ message: "Incorrect password or email" });
+      return res.status(401).json({ success: false, message: "Incorrect email or password" });
     }
+
     const token = createSecretToken(user._id);
     res.cookie("Token", token, {
-      httpOnly: true, //  Cannot be accessed via JS → prevents XSS
-      secure: true, //  Only sent over HTTPS
-      sameSite: "Lax", //  Prevents CSRF on normal navigation
+      httpOnly: true,
+      secure: false,
+      sameSite: "Lax",
     });
-    res.json({ message: "User logged in successfully", success: true });
+
+    return res.status(200).json({
+      success: true,
+      message: "User logged in successfully",
+      user: { id: user._id, name: user.name, email: user.email }
+    });
   } catch (error) {
     console.error(error);
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+const logoutUser = (req, res) => {
+  res.clearCookie("Token", { httpOnly: true, secure: false });
+  return res.status(200).json({ success: true, message: "Logged out successfully" });
+};
+
+module.exports = { logoutUser, loginUser, signUp };

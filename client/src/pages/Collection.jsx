@@ -4,13 +4,14 @@ import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
 
 const Collection = () => {
-  const { search, setSearch, showSearch, setshowSearch } =useContext(ShopContext);
-  const { products } = useContext(ShopContext);
+  const { search, setSearch, showSearch, setshowSearch, products } =
+    useContext(ShopContext);
+
   const [sortOption, setsortOption] = useState("");
   const [selectedCategories, setSelectedCategories] = useState({
     Men: false,
     Women: false,
-    Kid: false,
+    Kids: false,
   });
   const [selectedTypes, setSelectedTypes] = useState({
     Topwear: false,
@@ -114,15 +115,15 @@ const Collection = () => {
               </label>
             </li>
             <li>
-              <label htmlFor="Kid">
+              <label htmlFor="Kids">
                 <input
                   type="checkbox"
-                  id="Kid"
+                  id="Kids"
                   className="mr-2"
-                  checked={selectedCategories["Kid"]}
-                  onChange={() => HandleCategory("Kid")}
+                  checked={selectedCategories["Kids"]}
+                  onChange={() => HandleCategory("Kids")}
                 />
-                Kid
+                kids
               </label>
             </li>
           </ul>
@@ -193,7 +194,7 @@ const Collection = () => {
             prop={item.value} → Passing data*/}
           {searchedProducts.map((item, index) => (
             <ProductItem
-              key={index}
+              key={item._id}
               name={item.name}
               id={item._id}
               image={item.image}

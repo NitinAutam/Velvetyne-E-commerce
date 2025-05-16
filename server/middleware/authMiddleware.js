@@ -3,30 +3,24 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 
 module.exports.userVerification = async (req, res) => {
-  const token = req.body.token;
+  console.log("Cookies received:", req.cookies);
+  const token = req.cookies.Token; // ✅ FIX: read from cookie, not body
 
-  // No token provided
   if (!token) {
     return res.status(401).json({ status: false, message: "Token not provided" });
   }
 
-  // Verify token
-  jwt.verify(token, process.env.TOKEN_KEY, async (err, data) => {
-    if (err) {
-      console.error("JWT Verification Error:", err.message);
-      return res.status(403).json({ status: false, message: "Invalid token" });
+  try {
+    const data = jwt.verify(token, process.env.TOKEN_KEY);
+    const user = await User.findById(data.id);
+    
+    if (user) {
+      return res.status(200).json({ status: true, user: user.username, loggedIn: true });
+    } else {
+      return res.status(404).json({ status: false, message: "User not found", loggedIn: false });
     }
-
-    try {
-      const user = await User.findById(data.id);
-      if (user) {
-        return res.status(200).json({ status: true, user: user.username });
-      } else {
-        return res.status(404).json({ status: false, message: "User not found" });
-      }
-    } catch (dbError) {
-      console.error("DB Error:", dbError.message);
-      return res.status(500).json({ status: false, message: "Server error" });
-    }
-  });
+  } catch (err) {
+    console.error("Verification error:", err.message);
+    return res.status(403).json({ status: false, message: "Invalid token", loggedIn: false });
+  }
 };
