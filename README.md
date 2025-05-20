@@ -62,14 +62,13 @@ JWT-based token authentication combined with OTP via email for enhanced security
 ## **UI Preview**
 
 ### Login with OTP
-*Secure authentication flow and success redirect to Homepage*
-![Login](demos/login.png)
+*Secure authentication flow with OTP and success redirect*  
+<img src="demos/login.png" alt="Login" width="600"/>
 
 ### Product Listing
-*Homepage with product cards, filters, and search*
-![Product Listing](demos/productlisting.png)
+*Homepage with product cards, filters, and search*  
+<img src="demos/productlisting.png" alt="Product Listing" width="600"/>
 
 ### Product Details
-*Single product view with key information and action buttons*
-![Product Details](demos/product.png)
-
+*Single product view with key information and action buttons*  
+<img src="demos/product.png" alt="Product Details" width="600"/>
