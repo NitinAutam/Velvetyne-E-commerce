@@ -4,10 +4,10 @@ import { removeFromCart } from "../redux/cartSlice";
 import { useDispatch } from "react-redux";
 import { assets } from "../assets/assets";
 
-const CartItem = ({ _id, name, price, selectedSize, image, quantity }) => {
+const CartItem = ({ _id, selectedSize, quantity }) => {
   const { currency } = useContext(ShopContext);
   const dispatch = useDispatch();
-
+  
   return (
     <div className="w-full max-w-5xl mx-auto border-b pb-4">
       {/* Cart Item */}

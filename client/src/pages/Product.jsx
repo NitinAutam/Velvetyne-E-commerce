@@ -9,7 +9,7 @@ import { addToCart } from "../redux/cartSlice";
 
 const Product = () => {
   const { productId } = useParams();
-  const { products, count, setCount } = useContext(ShopContext);
+  const { products} = useContext(ShopContext);
   const [activeTab, setActiveTab] = useState("description");
   const [selected, setSelected] = useState(null);
   const cardRef = useRef();
@@ -135,10 +135,7 @@ const Product = () => {
                 dispatch(
                   addToCart({
                     _id: currentProduct._id,
-                    name: currentProduct.name,
-                    price: currentProduct.price,
                     selectedSize: selected, // Passing the size
-                    image: currentProduct.image[0],
                   })
                 );
               } else {

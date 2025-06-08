@@ -1,6 +1,5 @@
 import { createContext, useState } from "react";
-import { products } from "../assets/assets";
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
 
 export const ShopContext = createContext();
 
@@ -10,6 +9,7 @@ const ShopContextProvider = ({ children }) => {
   const deliveryFee = 10;
   const [search, setSearch] = useState("");
   const [showSearch, setshowSearch] = useState(false);
+  const [products, setProducts] = useState([]);
 
   // value makes this object accessible via context
   const value = {
@@ -20,14 +20,13 @@ const ShopContextProvider = ({ children }) => {
     setSearch,
     showSearch,
     setshowSearch,
+    setProducts,
   };
 
   return (
     // props.children ensures that all components wrapped inside ShopContextProvider
     // (e.g., <App />) can access the ShopContext values
-    <ShopContext.Provider value={value}>
-      {children}
-      </ShopContext.Provider>
+    <ShopContext.Provider value={value}>{children}</ShopContext.Provider>
   );
 };
 

@@ -18,6 +18,7 @@ const signUp = async (req, res) => {
       httpOnly: true,
       secure: false, // set true in production
       sameSite: "Lax",
+      maxAge: 3 * 24 * 60 * 60 * 1000,
     });
     
     return res.status(201).json({
@@ -54,6 +55,7 @@ const loginUser = async (req, res) => {
       httpOnly: true,
       secure: false,
       sameSite: "Lax",
+      maxAge: 3 * 24 * 60 * 60 * 1000,
     });
 
     return res.status(200).json({

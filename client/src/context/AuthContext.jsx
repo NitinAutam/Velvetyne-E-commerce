@@ -1,12 +1,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { toast } from "react-toastify";
-import {
-  showSuccess,
-  showError,
-  showInfo,
-  showWarning,
-} from "../utils/toastUtils";
+import { showSuccess, showError } from "../utils/toastUtils";
+import api from "../utils/api";
 
 const AuthContext = createContext();
 
@@ -16,39 +11,32 @@ export const AuthProvider = ({ children }) => {
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await fetch("/api/auth/userVerify", {
-          method: "GET",
-          credentials: "include", // Sends the cookie
-        });
-
-        const data = await res.json();
-        if (res.ok && data.loggedIn) {
-          setLoggedIn(true);
-        } else {
-          setLoggedIn(false);
-        }
-      } catch (err) {
-        console.error("Auth check failed", err);
+  const checkAuth = async () => {
+    try {
+      const { data } = await api.get("/auth/userVerify");
+      setLoggedIn(data.loggedIn || false);
+    } catch (err) {
+      if (err.response?.status === 401) {
         setLoggedIn(false);
+      } else {
+        console.error("Unexpected auth check error:", err);
       }
-    };
+    }
+  };
 
-    checkAuth();
-  }, []);
+  checkAuth();
+}, []);
+
+
 
   const handleLogin = () => {
-    setLoggedIn(true); // No need to store token
+    setLoggedIn(true);
   };
 
   const handleLogout = async () => {
     try {
-      const res = await fetch("/api/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      });
-      if (res.ok) {
+      const { status } = await api.post("/auth/logout");
+      if (status === 200) {
         setLoggedIn(false);
         showSuccess("Logged out successfully");
       } else {
@@ -68,7 +56,7 @@ export const AuthProvider = ({ children }) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+
 AuthProvider.propTypes = {
-  //AuthProvider.propTypes – attaches prop type validation to the component.
-  children: PropTypes.node.isRequired, //enforces that children must be a valid renderable React node (e.g., JSX, string, number, element) and is required.
+  children: PropTypes.node.isRequired,
 };

@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Title from "../components/Title";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";import {
-  showSuccess,
-  showError,
-} from "../utils/toastUtils";
+import { toast } from "react-toastify";
+import { showSuccess, showError, showInfo } from "../utils/toastUtils";
 import { useAuth } from "../context/AuthContext";
-
+import { useSelector, useDispatch } from "react-redux";
+import { clearLocalCart } from "../redux/cartSlice";
+import api from "../utils/api";
 
 const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -15,8 +15,11 @@ const Login = () => {
     email: "",
     password: "",
   });
+
   const navigate = useNavigate();
-  const {handleLogin} = useAuth();
+  const dispatch = useDispatch();
+  const { handleLogin, loggedIn } = useAuth();
+  const localcartItems = useSelector((state) => state.cart.cartItems);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,7 +28,6 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const { name, email, password } = formData;
 
     if (!email || !password || (isSignUp && !name)) {
@@ -33,24 +35,16 @@ const Login = () => {
       return;
     }
 
-    const endpoint = isSignUp ? "/api/auth/signUp" : "/api/auth/login";
+    const endpoint = isSignUp ? "/auth/signUp" : "/auth/login";
     const body = isSignUp ? formData : { email, password };
 
     try {
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(body),
-      });
+      const { data } = await api.post(endpoint, body);
 
-      const data = await res.json();
-
-      if (res.ok && data.success) {
+      if (data.success) {
         showSuccess(data.message || "Login successful");
-        navigate("/");
         handleLogin();
-        // TODO: redirect or update auth context
+        navigate("/");
       } else {
         showError(data.message || "Authentication failed");
       }
@@ -59,6 +53,22 @@ const Login = () => {
       console.error("Auth error:", error);
     }
   };
+
+  useEffect(() => {
+    const syncCart = async () => {
+      if (loggedIn && localcartItems.length > 0) {
+        try {
+          await api.post("/auth/cart", { cart: localcartItems });
+          dispatch(clearLocalCart());
+        } catch (err) {
+          showError("Cart sync failed.");
+          console.error("Cart Sync Error:", err);
+        }
+      }
+    };
+
+    syncCart();
+  }, [loggedIn]);
 
   return (
     <div className="h-auto flex items-start justify-center pt-20 pb-10 px-4">
@@ -101,7 +111,13 @@ const Login = () => {
         />
 
         <div className="flex justify-between text-sm text-gray-600">
-          <button type="button" className="hover:underline">
+          <button
+            type="button"
+            className="hover:underline"
+            onClick={() =>
+              showInfo("Bold of you to assume this works already 😎")
+            }
+          >
             Forgot your password?
           </button>
           <button

@@ -2,10 +2,22 @@ import React, { useState, useContext, useEffect, useMemo } from "react";
 import { ShopContext } from "../context/ShopContext";
 import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
+import { useDispatch } from "react-redux";
+import { setFilters } from "../redux/productslice";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const Collection = () => {
   const { search, setSearch, showSearch, setshowSearch, products } =
     useContext(ShopContext);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  // const filters = useSelector((state)=>state.)
+
+  // const applyFilters = (filters) => {
+  //   const params = new URLSearchParams(filters).toString();
+  //   navigate(`/products?${params}`);
+  // };
 
   const [sortOption, setsortOption] = useState("");
   const [selectedCategories, setSelectedCategories] = useState({
@@ -19,65 +31,35 @@ const Collection = () => {
     Winterwear: false,
   });
   //prev here is the object making copy of prev, changing category specific
-  const HandleCategory = (category) => {
-    setSelectedCategories((prev) => {
-      return { ...prev, [category]: !prev[category] };
-    });
+  const handleCategoryToggle = (category) => {
+    setSelectedCategories((prev) => ({ ...prev, [category]: !prev[category] }));
   };
 
-  const HandleTypes = (types) => {
-    setSelectedTypes((prev) => ({
-      ...prev,
-      [types]: !prev[types],
-    }));
+  const handleTypeToggle = (type) => {
+    setSelectedTypes((prev) => ({ ...prev, [type]: !prev[type] }));
   };
-  //.some() → Checks if at least one value is true.
-  //Object.entries() → Helps loop over keys and values of an object.
-  const filtering = useMemo(() => {
-    const hasCategorySelected = Object.values(selectedCategories).some(
-      (value) => value
-    );
-    const hasTypeSelected = Object.values(selectedTypes).some((value) => value);
 
-    if (!hasCategorySelected && !hasTypeSelected) return products; // Return all products if nothing is selected
+  const buildFinalFilterState = () => {
+    const categories = Object.entries(selectedCategories) //Object.entries() → Helps loop over keys and values of an object.
+      .filter(([_, v]) => v)
+      .map(([k]) => k);
 
-    return products.filter((item) => {
-      const hasCategory = Object.entries(selectedCategories).some(
-        ([key, value]) => value && item.category === key
-      );
-      const hasType = Object.entries(selectedTypes).some(
-        ([key, value]) => value && item.subCategory === key
-      );
-      // If both category & type are selected  match both
-      if (hasCategorySelected && hasTypeSelected) return hasCategory && hasType;
+    const types = Object.entries(selectedTypes)
+      .filter(([_, v]) => v)
+      .map(([k]) => k);
 
-      // If only category is selected  match category
-      if (hasCategorySelected) return hasCategory;
+    return {
+      categories,
+      types,
+      search: search.trim(),
+      sort: sortOption,
+    };
+  };
 
-      // If only type is selected  match type
-      if (hasTypeSelected) return hasType;
-    });
-  }, [products, selectedCategories, selectedTypes]);
-
-  const sortedProducts = useMemo(() => {
-    {
-      /*useMemo for sorting Ensures sorting runs only when needed, improving performance */
-    }
-    if (sortOption === "lowhigh") {
-      return [...filtering].sort((a, b) => a.price - b.price);
-    }
-    if (sortOption === "highlow") {
-      return [...filtering].sort((a, b) => b.price - a.price);
-    }
-    return filtering;
-  }, [filtering, sortOption]);
-
-  const searchedProducts = useMemo(() => {
-    return sortedProducts.filter((item) => {
-      const searchMatch = item.name.toLowerCase().replace(/\s/g, "");
-      return searchMatch.includes(search.toLowerCase().replace(/\s/g, ""));
-    });
-  }, [sortedProducts, search]);
+  useEffect(() => {
+    const filterState = buildFinalFilterState();
+    dispatch(setFilters(filterState));
+  }, [selectedCategories, selectedTypes, search, sortOption]);
 
   return (
     <div className="flex flex-col sm:flex-row  gap-1 sm:gap-10 pt-10">
@@ -97,7 +79,7 @@ const Collection = () => {
                   id="Men"
                   className="mr-2"
                   checked={selectedCategories["Men"]}
-                  onChange={() => HandleCategory("Men")}
+                  onChange={() => handleCategoryToggle("Men")}
                 />
                 Men
               </label>
@@ -109,7 +91,7 @@ const Collection = () => {
                   id="Women"
                   className="mr-2"
                   checked={selectedCategories["Women"]}
-                  onChange={() => HandleCategory("Women")}
+                  onChange={() => handleCategoryToggle("Women")}
                 />
                 Women
               </label>
@@ -121,7 +103,7 @@ const Collection = () => {
                   id="Kids"
                   className="mr-2"
                   checked={selectedCategories["Kids"]}
-                  onChange={() => HandleCategory("Kids")}
+                  onChange={() => handleCategoryToggle("Kids")}
                 />
                 kids
               </label>
@@ -140,7 +122,7 @@ const Collection = () => {
                   id="Topwear"
                   className="mr-2"
                   checked={selectedTypes["Topwear"]}
-                  onChange={() => HandleTypes("Topwear")}
+                  onChange={() => handleTypeToggle("Topwear")}
                 />
                 Topwear
               </label>
@@ -152,7 +134,7 @@ const Collection = () => {
                   id="Bottomwear"
                   className="mr-2"
                   checked={selectedTypes["Bottomwear"]}
-                  onChange={() => HandleTypes("Bottomwear")}
+                  onChange={() => handleTypeToggle("Bottomwear")}
                 />
                 Bottomwear
               </label>
@@ -164,7 +146,7 @@ const Collection = () => {
                   id="Winterwear"
                   className="mr-2"
                   checked={selectedTypes["Winterwear"]}
-                  onChange={() => HandleTypes("Winterwear")}
+                  onChange={() => handleTypeToggle("Winterwear")}
                 />
                 Winterwear
               </label>
@@ -192,7 +174,7 @@ const Collection = () => {
            <Component /> → Render each item
             key={index} → Unique key (for React optimization)
             prop={item.value} → Passing data*/}
-          {searchedProducts.map((item, index) => (
+          {finalFilteredProducts.map((item) => (
             <ProductItem
               key={item._id}
               name={item.name}
