@@ -1,0 +1,50 @@
+# ====================
+# General
+# ====================
+node_modules/
+dist/
+*.log
+logs/
+.cache/
+out/
+*.local
+*.env
+.env.*
+
+# ====================
+# Vite (frontend)
+# ====================
+client/node_modules/
+client/dist/
+client/.env
+client/.env.*
+client/.vite
+
+# ====================
+# React
+# ====================
+*.DS_Store
+*.suo
+*.swp
+*.swo
+*.ntvs*
+*.njsproj
+*.sln
+.idea/
+.vscode/
+.vscode/*
+
+# ====================
+# Express Backend (server)
+# ====================
+server/node_modules/
+server/dist/
+server/.env
+server/.env.*
+server/putout-report.json
+
+# ====================
+# OS-specific files
+# ====================
+Thumbs.db
+.DS_Store
